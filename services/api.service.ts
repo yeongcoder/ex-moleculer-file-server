@@ -1,5 +1,4 @@
 //#region Global Imports
-import {IncomingMessage} from "http";
 import ApiGateway from 'moleculer-web';
 import {  Errors, Service, ServiceSchema, ServiceBroker, Context } from 'moleculer';
 import fs from 'fs';

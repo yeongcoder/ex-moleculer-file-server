@@ -5,7 +5,6 @@ import { Service, Action, Method, Event } from "moleculer-decorators";
 import fs, { ReadStream, WriteStream, statSync } from "fs";
 import path from "path";
 import mime from "mime-types";
-import jwt from 'jsonwebtoken';
 
 
 @Service({
@@ -172,38 +171,6 @@ class FileService extends MoleculerService {
      */
 
     /**
-     * Verify Signature 
-     * @param { Context<any, {signature: any} } ctx 
-     * @returns 
-     */
-    @Method
-    async authenticate(ctx:Context<any, {signature: any}>, route:any, req:any){
-        this.logger.info("req.query ==>",req.query);
-
-        const ucs_signature:string = req.query['x-ucw-signature']
-
-        try {
-
-            const decoded:string | object = jwt.verify(ucs_signature, process.env.UCS_SECRET_KEY);
-
-            if(!ucs_signature) throw "Invaild Signature";
-
-            this.logger.info("decoded ==>", decoded);                    
-
-            ctx.meta.signature = decoded;
-
-            return;
-
-        } catch(err){
-
-            this.logger.error(err);
-            throw new Errors.MoleculerError("Forbidden", 403);
-            
-        }
-
-    }
-
-    /**
      * Pipe read able file stream to write able file stream
      * @param { string } filePath 
      * @param { ReadStream }readFileStream 
@@ -242,7 +209,6 @@ class FileService extends MoleculerService {
             readFileStream.pipe(writeFileStream);
         })
     }
-
 
     /**
      * Create "fileName.plist" File for Mobile CI/CD 
