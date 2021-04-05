@@ -1,0 +1,77 @@
+{
+  "name": "ucworks-backend-storage",
+  "version": "1.0.0",
+  "description": "My Moleculer-based microservices project",
+  "scripts": {
+    "prod:run": "cross-env NODE_ENV=production npm run moleculer-run",
+    "dev:run": "cross-env NODE_ENV=develop npm run moleculer-run",
+    "moleculer-run": "ts-node -r tsconfig-paths/register ./node_modules/moleculer/bin/moleculer-runner.js --hot --repl --config moleculer.config.ts services/**/*.service.*",
+    "build": "tsc --build tsconfig.json",
+    "dev": "ts-node ./node_modules/moleculer/bin/moleculer-runner.js --hot --repl --config moleculer.config.ts services/**/*.service.ts",
+    "start": "moleculer-runner",
+    "cli": "moleculer connect TCP",
+    "ci": "jest --watch",
+    "test": "jest --coverage",
+    "lint": "eslint --ext .js,.ts .",
+    "dc:up": "docker-compose up --build -d",
+    "dc:logs": "docker-compose logs -f",
+    "dc:down": "docker-compose down"
+  },
+  "keywords": [
+    "microservices",
+    "moleculer"
+  ],
+  "author": "",
+  "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^2.26.0",
+    "@typescript-eslint/parser": "^2.26.0",
+    "eslint": "^6.8.0",
+    "eslint-plugin-import": "^2.20.2",
+    "eslint-plugin-prefer-arrow": "^1.2.2",
+    "jest": "^25.1.0",
+    "jest-cli": "^25.1.0",
+    "moleculer-repl": "^0.6.2",
+    "ts-jest": "^25.3.0",
+    "ts-node": "^8.8.1"
+  },
+  "dependencies": {
+    "@types/jest": "^25.1.4",
+    "@types/jsonwebtoken": "^8.5.1",
+    "@types/mime-types": "^2.1.0",
+    "@types/mkdirp": "^1.0.0",
+    "@types/node": "^13.9.8",
+    "cross-env": "^7.0.3",
+    "dotenv": "^8.2.0",
+    "jsonwebtoken": "^8.5.1",
+    "moleculer": "^0.14.0",
+    "moleculer-decorators": "^1.3.0",
+    "moleculer-web": "^0.9.0",
+    "typescript": "^3.8.3",
+    "yarn": "^1.22.10"
+  },
+  "engines": {
+    "node": ">= 10.x.x"
+  },
+  "jest": {
+    "coverageDirectory": "<rootDir>/coverage",
+    "testEnvironment": "node",
+    "moduleFileExtensions": [
+      "ts",
+      "tsx",
+      "js"
+    ],
+    "transform": {
+      "^.+\\.(ts|tsx)$": "ts-jest"
+    },
+    "testMatch": [
+      "**/*.spec.(ts|js)"
+    ],
+    "globals": {
+      "ts-jest": {
+        "tsConfig": "tsconfig.json"
+      }
+    }
+  },
+  "main": "index.js",
+  "license": "MIT"
+}
