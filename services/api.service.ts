@@ -47,7 +47,7 @@ export default class ApiService extends Service {
                 http2: true,
             
                 routes: [
-                    {
+                    {   //File Service Router
                         path: "",
                         bodyParsers: {
                             json: false,
@@ -56,7 +56,7 @@ export default class ApiService extends Service {
                         whitelist: [
                             "file.upload",
                             "file.download",
-                            "file.delete"
+                            "file.delete",
                         ],
                         authentication: true,
                         aliases: {
@@ -100,10 +100,10 @@ export default class ApiService extends Service {
                             //     action: "file.upload"
                             // },
                         },
-                        mappingPolicy: "restrict"
+                        mappingPolicy: "restrict",
                     },
-                    {
-                        path: "/list",
+                    {   //Demo API Router
+                        path: "/demo",
                         bodyParsers: {
                             json: true,
                         },
@@ -111,13 +111,13 @@ export default class ApiService extends Service {
                             "file.list"
                         ],
                         aliases: {
-                            "GET /": "file.list",
-                        }
+                            "GET /list": "file.list"
+                        },
                     }
                 ],
-            
+                
                 assets: {
-                    folder: "public",    //path.join(__dirname, "../public/file/assets") //"
+                    folder: "public"
                 }
             },
 

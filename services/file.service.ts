@@ -140,7 +140,7 @@ class FileService extends MoleculerService {
     @Action({
         name: "list"
     })
-    list(ctx: Context): string[] | Error {
+    list(ctx: Context): fs.Dirent[] | Error {
 
         const uploadDir:string = path.join(`${__dirname}/../${this.settings.storageConfig.disks.local.root}`);
 
@@ -150,7 +150,11 @@ class FileService extends MoleculerService {
         
         if (!fs.existsSync(filePath)) return new Error();
 
-        const fileList:string[] = fs.readdirSync(filePath)
+        const fileList:fs.Dirent[] = fs.readdirSync(filePath, {
+            withFileTypes: true 
+        }).filter(el=>!el.isDirectory())
+
+        this.logger.info("fileList:", fileList);
 
         return fileList
         

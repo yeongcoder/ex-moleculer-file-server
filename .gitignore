@@ -67,4 +67,4 @@ typings/
 dist/
 
 #public
-public/
+public/*.*
