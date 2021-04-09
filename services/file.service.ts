@@ -1,11 +1,10 @@
+/* eslint-disable @typescript-eslint/explicit-member-accessibility */
 "use strict";
-
-import { Service as MoleculerService, Context, Errors } from "moleculer";
-import { Service, Action, Method, Event } from "moleculer-decorators";
 import fs, { ReadStream, WriteStream, statSync } from "fs";
 import path from "path";
 import mime from "mime-types";
-
+import { Service as MoleculerService, Context, Errors } from "moleculer";
+import { Service, Action, Method, Event } from "moleculer-decorators";
 
 @Service({
     name: "file",
@@ -15,15 +14,10 @@ import mime from "mime-types";
             disks:{
                 local: {
                     driver: "local",
-                    root: "public"
+                    root: "public",
                 },
-                // nfs: {},
-                // smb: {},
-                // afp: {},
-                // ftp: {},
-                // webdav: {},
-            }
-        }
+            },
+        },
 	},
 })
 class FileService extends MoleculerService {
@@ -36,29 +30,32 @@ class FileService extends MoleculerService {
 
     /**
      * Upload (single, multi)
-     * @param { Context<ReadStream, {filename: string, signature:any}> } ctx 
-     * @returns { Promise<Object | Error>} 
+     * @param { Context<ReadStream, {filename: string, signature:any}> } ctx
+     * @returns { Promise<Object | Error>}
      */
     @Action({
         name: "upload",
     })
-    upload(ctx: Context<any, { filename: string, signature:any }>): Promise<Object | Error> {
+    upload(ctx: Context<any, { filename: string; signature: any }>): Promise<string | Error> {
         return new Promise(async (resolve, reject) => {
 
             this.logger.info("ctx.meta ==>", ctx.meta);
             this.logger.info("ctx.params.$params ==>", ctx.params.$params);
 
-            const uploadDir:string = path.join(`${__dirname}/../${this.settings.storageConfig.disks.local.root}`);
-            const fileName:string = ctx.meta.filename || ctx.params.$params.file;
-            const filePath:string = path.join(uploadDir, fileName);
-            const readFileStream:ReadStream = ctx.params;
+            const uploadDir: string = path.join(`${__dirname}/../${this.settings.storageConfig.disks.local.root}`);
+
+            this.upsertDir(uploadDir);
+
+            const fileName: string = ctx.meta.filename || ctx.params.$params.file;
+            const filePath: string = path.join(uploadDir, fileName);
+            const readFileStream: ReadStream = ctx.params;
 
             try {
 
-                //upload file to filePath
+                //  Upload file to filePath
                 await this.uploadFile(filePath, readFileStream);
 
-                //for Mobile CI/CD 
+                //  For Mobile CI/CD
                 this.createPlistFile(fileName);
 
                 resolve("OK");
@@ -74,58 +71,57 @@ class FileService extends MoleculerService {
 
     /**
      * Download (single)
-     * @param { Context<{file: string}, {$responseHeaders: any}> } ctx 
+     * @param { Context<{file: string}, {$responseHeaders: any}> } ctx
      * @returns { ReadStream | Errors.MoleculerError }
      */
     @Action({
         name: "download",
         params: {
-            file: "string"
-        }
+            file: "string",
+        },
     })
     download(ctx: Context<{file: string}, {$responseHeaders: any}>): ReadStream | Errors.MoleculerError {
 
-        this.logger.info("ctx.params: ", ctx.params);
+        const uploadDir: string = path.join(`${__dirname}/../${this.settings.storageConfig.disks.local.root}`);
+        const filePath: string = path.join(uploadDir, ctx.params.file);
 
-        const uploadDir:string = path.join(`${__dirname}/../${this.settings.storageConfig.disks.local.root}`);
-        const filePath:string = path.join(uploadDir, ctx.params.file);
+        //  요청 파일이 존재하지않으면 에러
+        if(!fs.existsSync(filePath)) { return new Errors.MoleculerError("Not Found", 404); };
 
-        //요청 파일이 존재하지않으면 에러
-        if(!fs.existsSync(filePath)) return new Errors.MoleculerError("Not Found", 404);
-
-        const fileStats:fs.Stats = fs.statSync(filePath);
-        const fileSize:number = fileStats.size;
+        const fileStats: fs.Stats = fs.statSync(filePath);
+        const fileSize: number = fileStats.size;
 
         ctx.meta.$responseHeaders = {
             "Content-Length": fileSize,
             "Content-Type": mime.lookup(ctx.params.file),
-        }
+        };
 
-        const readFileStream:ReadStream = fs.createReadStream(filePath);
+        const readFileStream: ReadStream = fs.createReadStream(filePath);
 
         return readFileStream;
-    }
+    };
 
     /**
-     * Delete (single) 
-     * @param { Context<{file: string} } ctx 
+     * Delete (single)
+     * @param { Context<{file: string} } ctx
      * @returns { string | Errors.MoleculerError }
      */
+    // eslint-disable-next-line @typescript-eslint/explicit-member-accessibility
     @Action({
         name: "delete",
         params: {
-            file: "string"
-        }
+            file: "string",
+        },
     })
     delete(ctx: Context<{file: string}>): string | Errors.MoleculerError {
 
         this.logger.info("ctx.params: ", ctx.params);
 
-        const uploadDir:string = path.join(`${__dirname}/../${this.settings.storageConfig.disks.local.root}`);
-        const filePath:string = path.join(uploadDir, ctx.params.file);
+        const uploadDir: string = path.join(`${__dirname}/../${this.settings.storageConfig.disks.local.root}`);
+        const filePath: string = path.join(uploadDir, ctx.params.file);
 
-        //요청 파일이 존재하지않으면 에러
-        if(!fs.existsSync(filePath)) return new Errors.MoleculerError("Not Found", 404);
+        //  요청 파일이 존재하지않으면 에러
+        if(!fs.existsSync(filePath)) { return new Errors.MoleculerError("Not Found", 404); };
 
         fs.unlinkSync(filePath);
 
@@ -134,30 +130,27 @@ class FileService extends MoleculerService {
 
     /**
      * Get File List
-     * @param { Context } ctx 
+     * @param { Context } ctx
      * @returns { string[] | Error }
      */
     @Action({
-        name: "list"
+        name: "list",
     })
     list(ctx: Context): fs.Dirent[] | Error {
 
-        const uploadDir:string = path.join(`${__dirname}/../${this.settings.storageConfig.disks.local.root}`);
+        const uploadDir: string = path.join(`${__dirname}/../${this.settings.storageConfig.disks.local.root}`);
 
-        !fs.existsSync(uploadDir) && fs.mkdirSync(uploadDir);
+        this.upsertDir(uploadDir);
 
         const filePath = path.join(uploadDir);
-        
-        if (!fs.existsSync(filePath)) return new Error();
 
-        const fileList:fs.Dirent[] = fs.readdirSync(filePath, {
-            withFileTypes: true 
-        }).filter(el=>!el.isDirectory())
+        const fileList: fs.Dirent[] = fs.readdirSync(filePath, {
+            withFileTypes: true ,
+        }).filter(el=>!el.isDirectory());
 
         this.logger.info("fileList:", fileList);
 
-        return fileList
-        
+        return fileList;
     }
 
     /**
@@ -165,7 +158,7 @@ class FileService extends MoleculerService {
      * Events
      * ==========================================================================
      */
-    //@Event
+    //  @Event
 
 
     /**
@@ -176,19 +169,19 @@ class FileService extends MoleculerService {
 
     /**
      * Pipe read able file stream to write able file stream
-     * @param { string } filePath 
-     * @param { ReadStream }readFileStream 
+     * @param { string } filePath
+     * @param { ReadStream }readFileStream
      * @returns Promise<Errors.MoleculerServerError | void>
      */
     @Method
     private uploadFile(filePath: string, readFileStream: ReadStream): Promise<Errors.MoleculerServerError | void>{
         return new Promise((resolve, reject) => {
 
-            const writeFileStream:WriteStream = fs.createWriteStream(filePath);
+            const writeFileStream: WriteStream = fs.createWriteStream(filePath);
 
             readFileStream.on("error", (err: Error) => {
 
-                reject(new Errors.MoleculerServerError("File error received", 500))
+                reject(new Errors.MoleculerServerError("File error received", 500));
                 // Destroy the local file
                 writeFileStream.destroy(err);
 
@@ -211,18 +204,18 @@ class FileService extends MoleculerService {
             });
 
             readFileStream.pipe(writeFileStream);
-        })
+        });
     }
 
     /**
-     * Create "fileName.plist" File for Mobile CI/CD 
-     * @param { string } fileName 
-     * @returns 
+     * Create "fileName.plist" File for Mobile CI/CD
+     * @param { string } fileName
+     * @returns
      */
     @Method
     private createPlistFile(fileName: string){
 
-        if(path.extname(fileName) != ".ipa") return;
+        if(path.extname(fileName) !== ".ipa") { return; };
 
         const plistContents = `
             <?xml version="1.0" encoding="UTF-8"?>
@@ -270,10 +263,22 @@ class FileService extends MoleculerService {
                 </array>
             </dict>
             </plist>
-        `
+        `;
         const plistFile = fs.createWriteStream(path.join(`${__dirname}/../${this.settings.storageConfig.disks.local.root}`, fileName.replace("ipa", "plist")));
-        //plistFile.write(plistContents);
         plistFile.end(plistContents);
+    }
+
+    /**
+     * Upsert Directory
+     * @param { string } dirPath
+     * @returns
+     */
+    @Method
+    private upsertDir(dirPath: string): void {
+        if (!fs.existsSync(dirPath)){
+            fs.mkdirSync(dirPath);
+        };
+        return;
     }
 
    /**

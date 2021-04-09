@@ -324,7 +324,7 @@
 
 		const fileData = elFileInput.files[0];
 
-		fetch(`${ucworksBackendURL}/signed/${fileData.name}?storage=${uploadStorage}&method=upload`)
+		fetch(`${ucworksBackendURL}/signed/${fileData.name}?operation=putObject&storage=${uploadStorage}`)
 			.then(res=>res.json())
 			.then(json=>{
 				console.log(json)
@@ -359,7 +359,7 @@
 		const elSelectStorage = document.querySelector("#download-storage");
 		const downloadStorage = elSelectStorage.options[elSelectStorage.selectedIndex].value;
 
-		fetch(`${ucworksBackendURL}/signed/${elTextFileNameInput.value}?storage=${downloadStorage}&method=download`)
+		fetch(`${ucworksBackendURL}/signed/${elTextFileNameInput.value}?operation=getObject&storage=${downloadStorage}`)
 		.then(res=>res.json())
 		.then(json=>{
 			elTextURLInput.value = json;
@@ -396,7 +396,7 @@
 		const elSelectStorage = document.querySelector("#delete-storage");
 		const deleteStorage = elSelectStorage.options[elSelectStorage.selectedIndex].value;
 
-		fetch(`${ucworksBackendURL}/signed/${elTextFileNameInput.value}?storage=${deleteStorage}&method=delete`)
+		fetch(`${ucworksBackendURL}/signed/${elTextFileNameInput.value}?operation=deleteObject&storage=${deleteStorage}`)
 		.then(res=>res.json())
 		.then(json=>{
 			elTextURLInput.value = json;
