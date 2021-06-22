@@ -3,12 +3,9 @@
   "version": "1.0.0",
   "description": "My Moleculer-based microservices project",
   "scripts": {
-    "prod:run": "cross-env NODE_ENV=production npm run moleculer-run",
-    "dev:run": "cross-env NODE_ENV=develop npm run moleculer-run",
-    "moleculer-run": "ts-node -r tsconfig-paths/register ./node_modules/moleculer/bin/moleculer-runner.js --hot --repl --config moleculer.config.ts services/**/*.service.*",
-    "build": "tsc --build tsconfig.json",
-    "dev": "ts-node ./node_modules/moleculer/bin/moleculer-runner.js --hot --repl --config moleculer.config.ts services/**/*.service.ts",
-    "start": "moleculer-runner",
+    "build": "tsc -P ./tsconfig.json",
+    "dev": "ts-node -r tsconfig-paths/register ./node_modules/moleculer/bin/moleculer-runner.js --hot --repl --env --config moleculer.config.ts services/**/*.service.ts",
+    "start": "moleculer-runner --env --config dist/moleculer.config.js dist/services/**/*.service.js",
     "cli": "moleculer connect TCP",
     "ci": "jest --watch",
     "test": "jest --coverage",
@@ -54,21 +51,38 @@
   },
   "jest": {
     "coverageDirectory": "<rootDir>/coverage",
+    "setupFiles": [
+      "<rootDir>/test/config/env.setup.ts",
+      "<rootDir>/test/config/mock.setup.ts"
+    ],
     "testEnvironment": "node",
+    "moduleDirectories": [
+      "node_modules",
+      "src"
+    ],
     "moduleFileExtensions": [
       "ts",
       "tsx",
-      "js"
+      "js",
+      "jsx",
+      "json"
     ],
+    "moduleNameMapper": {
+      "^@(Mixins)(.*)$": "<rootDir>/mixins/$2",
+      "^@(MicroServices)(.*)$": "<rootDir>/services/$2",
+      "^@(Test)(.*)$": "<rootDir>/test/$2",
+      "@Entities/Connection": "<rootDir>/test/Config/Connection",
+      "^@([A-Z].*)$": "<rootDir>/src/$1"
+    },
     "transform": {
-      "^.+\\.(ts|tsx)$": "ts-jest"
+      "^.+\\.(ts)$": "ts-jest"
     },
     "testMatch": [
       "**/*.spec.(ts|js)"
     ],
     "globals": {
       "ts-jest": {
-        "tsConfig": "tsconfig.json"
+        "tsConfig": "<rootDir>/tsconfig.json"
       }
     }
   },
