@@ -65,6 +65,3 @@ typings/
 
 # Don't track transpiled files
 dist/
-
-#public
-public/*.*
