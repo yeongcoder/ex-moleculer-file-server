@@ -1,451 +1,334 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-	<meta charset="UTF-8">
-	<title>File upload test</title>
+	<head>
+		<meta charset="UTF-8" />
+		<title>File upload test</title>
 
-	<style>
-		body {
-			font-family: Arial, sans-serif;
-			font-size: 16px;
-		}
-		button, input[type="submit"] {
-			margin-top: 10px;
-			padding: 0.25em 1em;
-		}
+		<style>
+			body {
+				font-family: Arial, sans-serif;
+				font-size: 16px;
+			}
+			button,
+			input[type="submit"] {
+				margin-top: 10px;
+				padding: 0.25em 1em;
+			}
 
-		li {
-			list-style-type: none;
-			padding: 5px;
-			margin-bottom: 3px;
-			cursor: pointer;
-		}
+			li {
+				list-style-type: none;
+				padding: 5px;
+				margin-bottom: 3px;
+				cursor: pointer;
+			}
 
-		fieldset {
-			padding: 20px;
-			margin: 1em;
-		}
+			fieldset {
+				padding: 20px;
+				margin: 1em;
+			}
 
+			.dir > li:hover {
+				background-color: #ddd;
+			}
 
-		.dir > li:hover {
-			background-color: #ddd;
-		}
+			.wrap {
+				display: flex;
+			}
 
-		.wrap {
-			display: flex
-		}
+			.checked {
+				background-color: skyblue;
+			}
 
-		.checked {
-			background-color: skyblue;
-		}
+			.percent {
+				font-weight: bold;
+			}
 
-		.percent {
-			font-weight: bold;
-		}
+			.signedurl-wrap {
+				margin-bottom: 10px;
+				padding: 5px;
+			}
 
-		.signedurl-wrap {
-			margin-bottom: 10px;
-			padding: 5px;
-		}
+			.url {
+				width: 100%;
+			}
 
-		.url {
-			width: 100%;
-		}
+			.module {
+				margin-bottom: 10px;
+			}
+		</style>
+	</head>
+	<body>
+		<div>
+			<label>ucworks-backend-URL</label>
+			<select id="select-url">
+				<option value="http://localhost:9000">
+					http://localhost:9000
+				</option>
+				<option value="https://ucworks.tk:9000">
+					https://ucworks.tk:9000
+				</option>
+				<option value="http://localhost">http://localhost</option>
+				<option value="https://ucworks.tk">https://ucworks.tk</option>
+				<option value="http://localhost:3000">
+					http://localhost:3000
+				</option>
+				<option value="https://ucworks.tk:3000">
+					https://ucworks.tk:3000
+				</option>
+			</select>
+		</div>
 
-		.module {
-			margin-bottom: 10px;
-		}
-		
-	</style>
-</head>
-<body>
-	<!-- <fieldset>
-		<legend>서버 스토리지</legend>
-		<ul class="dir">
-		</ul>
-		<button onclick="donwload()">Download</button>
 		<fieldset>
-			<legend>다운로드 파일</legend>
-			<ul class="downloadedFile-wrap">
-			</ul>
+			<legend>ucworks-backend-storage</legend>
+			<ul class="dir"></ul>
 		</fieldset>
-	</fieldset>
-	<fieldset>
-		<legend>파일 업로드</legend>
-		<p>Select image to upload:</p>
-		<input type="file" name="myMultifile" id="myMultifile" multiple>
-		<br>
-		<button onclick="uploadMulti()">Upload</button>
-		<span id="m_percent" class="percent">0</span>
-		<span id="m_responseOK" style="color: green; font-weight: bold"></span>
-		<span id="m_responseError" style="color: red; font-weight: bold"></span>
-	</fieldset> -->
 
-	<div>
-		<label>ucworks-backend-URL</label>
-		<select id="select-url">
-			<option value="http://localhost:9000">http://localhost:9000</option>
-			<option value="https://ucworks.tk:9000">https://ucworks.tk:9000</option>
-		</select>
-	</div>
+		<fieldset>
+			<legend>[Signed URL] 파일 업로드</legend>
+			<div class="signedurl-wrap">
+				<div class="module">
+					<select id="upload-storage">
+						<option value="ucw">UCW</option>
+						<option value="s3">AWS S3</option>
+						<option value="ncp">NCP</option>
+					</select>
+					<input type="file" name="upload-file" id="upload-file" />
+					<button onclick="getUploadURL()">GET URL</button>
+				</div>
+				<div class="module">
+					<input
+						id="upload-signedurl"
+						class="url"
+						type="text"
+						placeholder="URL"
+					/>
+				</div>
 
-	<fieldset>
-		<legend>ucworks-backend-storage</legend>
-		<ul class="dir">
-		</ul>
-	</fieldset>
-
-	<fieldset>
-		<legend>[Signed URL] 파일 업로드</legend>
-		<div class="signedurl-wrap">
-			<div class="module">
-				<select id="upload-storage">
-					<option value="ucw">UCW</option>
-					<option value="s3">AWS S3</option>
-					<option value="ncp">NCP</option>
-				</select>
-				<input type="file" name="upload-file" id="upload-file">
-				<button onclick="getUploadURL()">GET URL</button>
+				<div class="module">
+					<button onclick="uploadBySignedURL()">Upload</button>
+				</div>
 			</div>
-			<div class="module">
-				<input id="upload-signedurl" class="url" type="text" placeholder="URL"/>
+		</fieldset>
+
+		<fieldset>
+			<legend>[Signed URL] 파일 다운로드</legend>
+			<div class="signedurl-wrap">
+				<div class="module">
+					<select id="download-storage">
+						<option value="ucw">UCW</option>
+						<option value="s3">AWS S3</option>
+						<option value="ncp">NCP</option>
+					</select>
+					<input
+						id="download-file-name"
+						type="text"
+						placeholder="file name"
+					/>
+					<button onclick="getDownloadURL()">GET URL</button>
+				</div>
+				<div class="module">
+					<input
+						id="download-signedurl"
+						class="url"
+						type="text"
+						readonly
+						placeholder="URL"
+					/>
+				</div>
+
+				<div class="module">
+					<button onclick="downloadBySignedURL()">Download</button>
+				</div>
 			</div>
+		</fieldset>
 
-			<div class="module">
-				<button onclick="uploadBySignedURL()">Upload</button>
+		<fieldset>
+			<legend>[Signed URL] 파일 삭제</legend>
+			<div class="signedurl-wrap">
+				<div class="module">
+					<select id="delete-storage">
+						<option value="ucw">UCW</option>
+						<option value="s3">AWS S3</option>
+						<option value="ncp">NCP</option>
+					</select>
+					<input
+						id="delete-file-name"
+						type="text"
+						placeholder="file name"
+					/>
+					<button onclick="getDeleteURL()">GET URL</button>
+				</div>
+
+				<div class="module">
+					<input
+						id="delete-signedurl"
+						class="url"
+						type="text"
+						readonly
+						placeholder="URL"
+					/>
+				</div>
+
+				<div class="module">
+					<button onclick="deleteBySignedURL()">Delete</button>
+				</div>
 			</div>
-		</div>
-	</fieldset>
+		</fieldset>
+	</body>
+	<script>
+		const elSelectURL = document.querySelector("#select-url");
+		let ucworksBackendURL =
+			elSelectURL.options[elSelectURL.selectedIndex].value;
+		elSelectURL.addEventListener("change", (event) => {
+			ucworksBackendURL =
+				elSelectURL.options[elSelectURL.selectedIndex].value;
+		});
 
-	<fieldset>
-		<legend>[Signed URL] 파일 다운로드</legend>
-		<div class="signedurl-wrap">
-			<div class="module">
-				<select id="download-storage">
-					<option value="ucw">UCW</option>
-					<option value="s3">AWS S3</option>
-					<option value="ncp">NCP</option>
-				</select>
-				<input id="download-file-name" type="text" placeholder="file name" />
-				<button onclick="getDownloadURL()">GET URL</button>
-			</div>
-			<div class="module">
-				<input id="download-signedurl" class="url" type="text"readonly placeholder="URL"/>
-			</div>
+		getFileList();
 
-			<div class="module">
-				<button onclick="downloadBySignedURL()">Download</button>
-			</div>
-		</div>
-	</fieldset>
+		/*--- 업로드 ---*/
+		function getUploadURL() {
+			const elFileInput = document.querySelector("#upload-file");
+			const elTextInput = document.querySelector("#upload-signedurl");
+			const elSelectStorage = document.querySelector("#upload-storage");
+			const uploadStorage =
+				elSelectStorage.options[elSelectStorage.selectedIndex].value;
 
-	<fieldset>
-		<legend>[Signed URL] 파일 삭제</legend>
-		<div class="signedurl-wrap">
-			<div class="module">
-				<select id="delete-storage">
-					<option value="ucw">UCW</option>
-					<option value="s3">AWS S3</option>
-					<option value="ncp">NCP</option>
-				</select>
-				<input id="delete-file-name" type="text" placeholder="file name" />
-				<button onclick="getDeleteURL()">GET URL</button>
-			</div>
+			const fileData = elFileInput.files[0];
 
-			<div class="module">
-				<input id="delete-signedurl" class="url" type="text"readonly placeholder="URL"/>
-			</div>
+			fetch(
+				`${ucworksBackendURL}/api/v1/file/signedurl/${fileData.name}?operation=putObject&storage=${uploadStorage}`
+			)
+				.then((res) => res.json())
+				.then((json) => {
+					console.log(json);
+					elTextInput.value = json;
+				})
+				.catch((err) => console.log(err));
+		}
 
-			<div class="module">
-				<button onclick="deleteBySignedURL()">Delete</button>
-			</div>
-		</div>
-	</fieldset>
+		function uploadBySignedURL() {
+			const elFileInput = document.querySelector("#upload-file");
+			const elTextInput = document.querySelector("#upload-signedurl");
+			const elSelectStorage = document.querySelector("#upload-storage");
+			const uploadStorage =
+				elSelectStorage.options[elSelectStorage.selectedIndex].value;
 
-</body>
-<script>
+			const fileData = elFileInput.files[0];
 
-	const url = "http://localhost:9003";
-	const storage = "ucw"
-
-	const elSelectURL = document.querySelector("#select-url");
-	let ucworksBackendURL = elSelectURL.options[elSelectURL.selectedIndex].value;;
-	elSelectURL.addEventListener("change", event => {
-		ucworksBackendURL = elSelectURL.options[elSelectURL.selectedIndex].value;
-	})
-
-	getFileList()
-
-	// async function donwload(){
-
-	// 	const downloadedFileWrap = document.querySelector(".downloadedFile-wrap");
-	// 	const willDonwloadFiles = document.querySelectorAll(".dir > .checked");
-
-	// 	const filename = willDonwloadFiles[0].innerText
-		
-	// 	const progressClassname = "file"+Date.now();
-
-	// 	downloadedFileWrap.innerHTML += `
-	// 		<li class="${filename}-downloaded">
-	// 			<span>${filename}</sapn>
-	// 			<sapn class="${progressClassname}">0</span>
-	// 		</li>
-	// 	`
-
-	// 	const elProgress = document.querySelector(`.${progressClassname}`);
-
-	// 	var req = new XMLHttpRequest();
-	// 	req.open("GET", url+"/"+willDonwloadFiles[0].innerText);
-	// 	req.responseType = "blob";
-	// 	req.onprogress = function(e){
-
-	// 		console.log("e.loaded ==>", e.loaded/1e+6+"MB")
-	// 		percent = Math.round((e.loaded / e.total) * 100);
-	// 		elProgress.innerText = percent + "%";
-
-	// 	}
-	// 	req.onreadystatechange = function() {
-	// 		if(this.readyState == 4 && this.status == 200){
-	// 			var link = document.createElement('a');
-	// 			link.href = window.URL.createObjectURL(this.response);
-	// 			link.download = Date.now();
-	// 			link.click();
-	// 		}
-	// 	}
-	// 	req.send();
-	// }
-
-	// async function uploadSingle(){
-	// 	const input = document.querySelector("#mySinglefile");
-	// 	const pOK = document.querySelector("#s_responseOK");
-	// 	const pError = document.querySelector("#s_responseError");
-	// 	const elPercent = document.querySelector("#s_percent");
-	// 	pOK.innerHTML = "";
-	// 	pError.innerHTML = "";
-
-	// 	let accLoaded = 0;
-	// 	let viewPercent = 0;
-
-	// 	let totalByte = 0;
-
-
-	// 	let percent = 0;
-
-	// 	var formData = new FormData();
-	// 	formData.append("file", input.files[0]);
-
-	// 	var req = new XMLHttpRequest();
-	// 	req.open("POST", url);
-	// 	req.enctype = "multipart/form-data";
-	// 	req.onload = function(event) {
-
-	// 		if (event.target.status == 200){
-
-	// 			console.log(event.target)
-
-	// 			pOK.innerHTML ="Uploaded successfully!: "+event.target.statusText;
-
-	// 			getFileList();
-	// 		} else {
-
-	// 			return pError.innerHTML = "Upload error: " + event.target.statusText;
-	// 		}
-	// 	}
-	// 	req.upload.onprogress = function(e){
-
-	// 		console.log("e.loaded ==>", e.loaded/1e+6+"MB")
-
-	// 		percent = Math.round(e.loaded * 100/e.total);
-	// 		elPercent.innerText = percent + "%";
-	// 	}
-	// 	req.send(formData);
-	// }
-
-	// async function uploadMulti(){
-	// 	const input = document.querySelector("#myMultifile");
-	// 	const pOK = document.querySelector("#m_responseOK");
-	// 	const pError = document.querySelector("#m_responseError");
-	// 	const elPercent = document.querySelector("#m_percent");
-	// 	pOK.innerHTML = "";
-	// 	pError.innerHTML = "";
-
-	// 	let accLoaded = 0;
-	// 	let viewPercent = 0;
-
-	// 	let totalByte = 0;
-
-	// 	// const fileData = input.files;
-
-	// 	//console.log("file.size ==>", fileData.size/1e+6+"MB")
-
-	// 	let percent = 0;
-
-	// 	var req = new XMLHttpRequest();
-	// 	var formData = new FormData();
-
-
-	// 	for(let i = 0; i < input.files.length; i++){
-	// 		formData.append("file"+i, input.files[i]);
-	// 	}
-
-	// 	req.open("POST", url);
-	// 	req.enctype = "multipart/form-data";
-	// 	req.onload = function(event) {
-
-	// 		if (event.target.status == 200){
-
-	// 			pOK.innerHTML ="Uploaded successfully!: "+event.target.statusText;
-
-	// 			getFileList();
-
-	// 		} else {
-
-	// 			return pError.innerHTML = "Upload error: " + event.target.statusText;
-	// 		}
-	// 	}
-	// 	req.upload.onprogress = function(e){
-
-	// 		console.log("e.loaded ==>", e.loaded/1e+6+"MB")
-
-	// 		percent = Math.round(e.loaded * 100/e.total);
-	// 		elPercent.innerText = percent + "%";
-	// 	}
-	// 	req.send(formData);
-	// }
-	
-	/*--- Signed URL Zone start---*/
-
-	/*--- 업로드 ---*/
-	function getUploadURL(){
-		const elFileInput = document.querySelector("#upload-file");
-		const elTextInput = document.querySelector("#upload-signedurl");
-		const elSelectStorage = document.querySelector("#upload-storage");
-		const uploadStorage = elSelectStorage.options[elSelectStorage.selectedIndex].value;
-
-		const fileData = elFileInput.files[0];
-
-		fetch(`${ucworksBackendURL}/signed/${fileData.name}?operation=putObject&storage=${uploadStorage}`)
-			.then(res=>res.json())
-			.then(json=>{
-				console.log(json)
-				elTextInput.value = json;
+			fetch(elTextInput.value, {
+				method: "PUT",
+				body: fileData,
 			})
-			.catch(err=> console.log(err))
-	}
+				.then((res) => {
+					console.log(res.status);
+					getFileList();
+				})
+				.catch((err) => console.log(err));
+		}
 
-	function uploadBySignedURL(){
-		const elFileInput = document.querySelector("#upload-file");
-		const elTextInput = document.querySelector("#upload-signedurl");
-		const elSelectStorage = document.querySelector("#upload-storage");
-		const uploadStorage = elSelectStorage.options[elSelectStorage.selectedIndex].value;
+		/*--- 다운로드 ---*/
+		function getDownloadURL() {
+			const elTextFileNameInput = document.querySelector(
+				"#download-file-name"
+			);
+			const elTextURLInput = document.querySelector(
+				"#download-signedurl"
+			);
+			const elSelectStorage = document.querySelector("#download-storage");
+			const downloadStorage =
+				elSelectStorage.options[elSelectStorage.selectedIndex].value;
 
-		const fileData = elFileInput.files[0];
+			fetch(
+				`${ucworksBackendURL}/api/v1/file/signedurl/${elTextFileNameInput.value}?operation=getObject&storage=${downloadStorage}`
+			)
+				.then((res) => res.json())
+				.then((json) => {
+					elTextURLInput.value = json;
+				})
+				.catch((err) => console.log(err));
+		}
 
-		fetch(elTextInput.value, {
-			method: "PUT",
-			body: fileData
-		})
-		.then(res=>{
-			console.log(res.status);
-			getFileList()
-		})
-		.catch(err=>console.log(err))
-	}
+		function downloadBySignedURL() {
+			const elFileInput = document.querySelector("#download-file");
+			const elTextInput = document.querySelector("#download-signedurl");
 
-	/*--- 다운로드 ---*/
-	function getDownloadURL(){
-		const elTextFileNameInput = document.querySelector("#download-file-name");
-		const elTextURLInput = document.querySelector("#download-signedurl");
-		const elSelectStorage = document.querySelector("#download-storage");
-		const downloadStorage = elSelectStorage.options[elSelectStorage.selectedIndex].value;
+			fetch(elTextInput.value, {
+				method: "GET",
+			})
+				.then((res) => (res.status == 200 ? res.blob() : res.json()))
+				.then((parsed) => {
+					if (!(parsed instanceof Blob)) return console.log(parsed);
+					var url = window.URL.createObjectURL(parsed);
+					var a = document.createElement("a");
+					a.href = url;
+					a.download = Date.now();
+					document.body.appendChild(a); // we need to append the element to the dom -> otherwise it will not work in firefox
+					a.click();
+					a.remove(); //afterwards we remove the element again
+				})
+				.catch((err) => console.error(err));
+		}
 
-		fetch(`${ucworksBackendURL}/signed/${elTextFileNameInput.value}?operation=getObject&storage=${downloadStorage}`)
-		.then(res=>res.json())
-		.then(json=>{
-			elTextURLInput.value = json;
-		})
-		.catch(err=> console.log(err))
-	}
+		/*--- 삭제 ---*/
+		function getDeleteURL() {
+			const elTextFileNameInput =
+				document.querySelector("#delete-file-name");
+			const elTextURLInput = document.querySelector("#delete-signedurl");
+			const elSelectStorage = document.querySelector("#delete-storage");
+			const deleteStorage =
+				elSelectStorage.options[elSelectStorage.selectedIndex].value;
 
-	function downloadBySignedURL(){
-		const elFileInput = document.querySelector("#download-file");
-		const elTextInput = document.querySelector("#download-signedurl");
+			fetch(
+				`${ucworksBackendURL}/api/v1/file/signedurl/${elTextFileNameInput.value}?operation=deleteObject&storage=${deleteStorage}`
+			)
+				.then((res) => res.json())
+				.then((json) => {
+					elTextURLInput.value = json;
+				})
+				.catch((err) => console.log(err));
+		}
 
-		fetch(elTextInput.value, {
-			method: "GET",
-		})
-        .then(res =>  res.status == 200 ? res.blob() : res.json())
-        .then(parsed => {
-			if(!(parsed instanceof Blob)) return console.log(parsed);
-            var url = window.URL.createObjectURL(parsed);
-            var a = document.createElement('a');
-            a.href = url;
-            a.download = Date.now();
-            document.body.appendChild(a); // we need to append the element to the dom -> otherwise it will not work in firefox
-            a.click();    
-            a.remove();  //afterwards we remove the element again         
-        })
-		.catch(err=>console.error(err));
-	}
+		function deleteBySignedURL() {
+			const elFileInput = document.querySelector("#delete-file");
+			const elTextInput = document.querySelector("#delete-signedurl");
 
+			fetch(elTextInput.value, {
+				method: "DELETE",
+			})
+				.then((res) => {
+					console.log(res.status);
+					getFileList();
+				})
+				.catch((err) => console.log(err));
+		}
 
-	/*--- 삭제 ---*/
-	function getDeleteURL(){
-		const elTextFileNameInput = document.querySelector("#delete-file-name");
-		const elTextURLInput = document.querySelector("#delete-signedurl");
-		const elSelectStorage = document.querySelector("#delete-storage");
-		const deleteStorage = elSelectStorage.options[elSelectStorage.selectedIndex].value;
+		/*--- Signed URL Zone end---*/
 
-		fetch(`${ucworksBackendURL}/signed/${elTextFileNameInput.value}?operation=deleteObject&storage=${deleteStorage}`)
-		.then(res=>res.json())
-		.then(json=>{
-			elTextURLInput.value = json;
-		})
-		.catch(err=> console.log(err))
-	}
+		//스토리지 파일 리스트 조회
+		function getFileList() {
+			const elDir = document.querySelector(".dir");
 
-	function deleteBySignedURL(){
-		const elFileInput = document.querySelector("#delete-file");
-		const elTextInput = document.querySelector("#delete-signedurl");
-
-		fetch(elTextInput.value, {
-			method: "DELETE",
-		})
-		.then(res=>{
-			console.log(res.status);
-			getFileList()
-		})
-		.catch(err=>console.log(err))
-	}
-	
-	/*--- Signed URL Zone end---*/
-
-	//스토리지 파일 리스트 조회
-	function getFileList(){
-
-		const elDir = document.querySelector(".dir");
-
-		fetch(`/demo/list`)
-			.then(res=>res.json())
-			.then(json=>{
-				console.log("file list:", json);
-				elDir.innerHTML = "";
-				for(let fileObj of json){
-					elDir.innerHTML += `
+			fetch(`/demo/list`)
+				.then((res) => res.json())
+				.then((json) => {
+					console.log("file list:", json);
+					elDir.innerHTML = "";
+					for (let fileObj of json) {
+						elDir.innerHTML += `
 						<li class="${fileObj.name}">
 							${fileObj.name}
 						</li>
 					`;
-				}
-				const elFileLists = document.querySelectorAll(`.dir > li`);
-				for(let elFileList of elFileLists) {
-					elFileList.addEventListener("click", function(e){
-						e.currentTarget.classList.toggle("checked");
-					})
-				}
-			})
-			.catch(err=>console.error(err));
-	}
-
-</script>
+					}
+					const elFileLists = document.querySelectorAll(`.dir > li`);
+					for (let elFileList of elFileLists) {
+						elFileList.addEventListener("click", function (e) {
+							e.currentTarget.classList.toggle("checked");
+						});
+					}
+				})
+				.catch((err) => console.error(err));
+		}
+	</script>
 </html>
