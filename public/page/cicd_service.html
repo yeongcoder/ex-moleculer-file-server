@@ -2,7 +2,7 @@
 <html>
   <head>
     <title>Download ucworks Mobile APP</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
   </head>
   <style>
     .wrap {
@@ -23,29 +23,27 @@
     </div>
   </body>
   <script>
-    const downloadUrl = location.protocol+"//"+location.host;
+    const downloadUrl = location.protocol + "//" + location.host;
     const elWrap = document.querySelector(".wrap");
 
     fetch(`/demo/list`)
-      .then(res=>res.json())
-      .then(json=>{
-        console.log(json)
+      .then((res) => res.json())
+      .then((json) => {
+        console.log(json);
 
-        for(let filename of json){
+        for (let filestat of json) {
+          console.log(/.\.plist/gi.test(filestat.name));
 
-          console.log(/.\.plist/ig.test(filename))
-
-          if(/.\.plist/ig.test(filename)){
-            
+          if (/.\.plist/gi.test(filestat.name)) {
             elWrap.innerHTML += `
               <div class="link" >
-              <a href="itms-services://?action=download-manifest&url=${downloadUrl}/__uploads/${filename}">[iOS] ${filename} 다운로드</a>
+              <a href="itms-services://?action=download-manifest&url=${downloadUrl}/__uploads/${filestat.name}">[iOS] ${filestat.name} 다운로드</a>
               </div>
             `;
-          } else if(/.\.apk/ig.test(filename)) {
+          } else if (/.\.apk/gi.test(filestat.name)) {
             elWrap.innerHTML += `
               <div class="link" >
-              <a href="${downloadUrl}/__uploads/${filename}">[Android] ${filename} 다운로드</a>
+              <a href="${downloadUrl}/__uploads/${filestat.name}">[Android] ${filestat.name} 다운로드</a>
               </div>
             `;
           } else {
@@ -53,6 +51,6 @@
           }
         }
       })
-      .catch(err=>console.log(err))
+      .catch((err) => console.log(err));
   </script>
 </html>

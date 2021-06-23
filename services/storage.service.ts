@@ -153,7 +153,7 @@ export default class StorageService extends Service {
                 });
 
                 writeFileStream.on("error", (err: Error) => {
-                  reject(new Errors.MoleculerServerError("File error writr", 500));
+                  reject(new Errors.MoleculerServerError("File error write", 500));
                   // Remove the errored file.zs
                   fs.unlinkSync(filePath);
                 });
